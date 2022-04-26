@@ -6,12 +6,15 @@
             <div class="container">
                 <div class="main-section-data">
                     <div class="row">
+
                         <div class="col-lg-3">
                             <div class="filter-secs">
+
                                 <div class="filter-heading">
                                     <h3>Filters</h3>
                                     <a href="#" title="">Clear all filters</a>
                                 </div>
+
                                 <div class="paddy">
                                     <div class="filter-dd">
                                         <div class="filter-ttl">
@@ -19,27 +22,29 @@
                                         </div>
                                         <input class="form-control form-control-sm" type="text" name="search-skills" placeholder="Search skills">
                                     </div>
+
+{{--                                    Availabilty--}}
                                     <div class="filter-dd">
                                         <div class="filter-ttl">
                                             <h3>Availabilty</h3>
                                         </div>
                                         <ul class="avail-checks">
                                             <li>
-                                                <input type="radio" name="cc" id="c1">
+                                                <input type="radio" name="cc" id="c1" @click="availabilty(1)">
                                                 <label for="c1">
                                                     <span></span>
                                                 </label>
                                                 <small>Hourly</small>
                                             </li>
                                             <li>
-                                                <input type="radio" name="cc" id="c2">
+                                                <input type="radio" name="cc" id="c2" @click="availabilty(2)">
                                                 <label for="c2">
                                                     <span></span>
                                                 </label>
                                                 <small>Part Time</small>
                                             </li>
                                             <li>
-                                                <input type="radio" name="cc" id="c3">
+                                                <input type="radio" name="cc" id="c3" @click="availabilty(3)">
                                                 <label for="c3">
                                                     <span></span>
                                                 </label>
@@ -47,17 +52,7 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <div class="filter-dd">
-                                        <div class="filter-ttl">
-                                            <h3>Job Type</h3>
-                                        </div>
-                                        <select class="form-control form-control-sm">
-                                            <option>Select a job type</option>
-                                            <option>Select a job type</option>
-                                            <option>Select a job type</option>
-                                            <option>Select a job type</option>
-                                        </select>
-                                    </div>
+
                                     <div class="filter-dd">
                                         <div class="filter-ttl">
                                             <h3>Pay Rate / Hr ($)</h3>
@@ -70,18 +65,20 @@
                                             <h4>100+</h4>
                                         </div>
                                     </div>
+
+{{--                                    Countries--}}
                                     <div class="filter-dd">
                                         <div class="filter-ttl">
                                             <h3>Countries</h3>
                                         </div>
-                                        <select class="form-control form-control-sm">
-                                            <option>Select a country</option>
-                                            <option>United Kingdom</option>
-                                            <option>United States</option>
-                                            <option>Russia</option>
+                                        <select class="form-control form-control-sm" v-model="country" @change="countryChange">
+                                            <option value="United Kingdom" selected>United Kingdom</option>
+                                            <option value="United States">United States</option>
+                                            <option value="Russia">Russia</option>
+                                            <option value="Pakistan">Pakistan</option>
                                         </select>
                                     </div>
-                                    <input class="btn btn-block text-white" type="button" value="Filter" style="background-color: #e44d3a;">
+{{--                                    <input class="btn btn-block text-white" type="button" value="Filter" style="background-color: #e44d3a;">--}}
                                 </div>
                             </div>
                         </div>
@@ -219,10 +216,65 @@
         const app = new Vue({
             el: '#app',
             data: {
+                country:'Pakistan',
                 myPost:{!! Auth::check() ? Auth::user()->post : '' !!},
                 allPost:{!! \App\Models\Post::with('user')->latest()->get() !!}
             },
-            methods:{},
+            methods:{
+
+                countryChange(){
+                    this.allPost = {!! \App\Models\Post::with('user')->latest()->get() !!}
+                    let val = this.country
+                    let newArr = []
+                    this.allPost.find( (e) => {
+                        if (e.user.country === val){
+                            newArr.push(e)
+                        }
+                    })
+                    console.log(newArr.length)
+                    if (newArr.length > 0){
+                        this.allPost = newArr
+                    }
+                    else{
+                        this.allPost = {!! \App\Models\Post::with('user')->latest()->get() !!}
+                    }
+                },
+
+                availabilty(num){
+
+                    let val = ''
+                    if (num === 1){ val = 'Hourly' }
+                    if (num === 2){ val = 'Part Time' }
+                    if (num === 3){ val = 'Full Time' }
+                    let newArr1 = []
+                    let newArr2 = []
+                    this.myPost = {!! Auth::check() ? Auth::user()->post : '' !!}
+                    this.myPost.find( (e) => {
+                        if (e.post_type === val){
+                            newArr1.push(e)
+                        }
+                    })
+                    if (newArr1.length > 0){
+                        this.myPost = newArr1
+                    }
+                    else{
+                        this.myPost = {!! Auth::check() ? Auth::user()->post : '' !!}
+                    }
+
+                    this.allPost = {!! \App\Models\Post::with('user')->latest()->get() !!}
+                    this.allPost.find( (e) => {
+                        if (e.post_type === val){
+                            newArr2.push(e)
+                        }
+                    })
+                    if (newArr2.length > 0){
+                        this.allPost = newArr2
+                    }
+                    else{
+                        this.allPost = {!! \App\Models\Post::with('user')->latest()->get() !!}
+                    }
+                },
+            },
             mounted() {
                 console.log('working')
             }
