@@ -16,7 +16,7 @@ class PostSeeder extends Seeder
     public function run()
     {
         for ($i = 0; $i < 100; $i++){
-            $id = rand(0,20);
+            $id = rand(1,19);
             $indexedArray = array("red", "blue", "green", "black");
             $cat = $indexedArray[array_rand($indexedArray)];
 

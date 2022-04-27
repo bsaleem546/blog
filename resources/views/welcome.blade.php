@@ -12,7 +12,7 @@
 
                                 <div class="filter-heading">
                                     <h3>Filters</h3>
-                                    <a href="#" title="">Clear all filters</a>
+{{--                                    <a href="#" title="">Clear all filters</a>--}}
                                 </div>
 
                                 <div class="paddy">
@@ -20,7 +20,8 @@
                                         <div class="filter-ttl">
                                             <h3>Skills</h3>
                                         </div>
-                                        <input class="form-control form-control-sm" type="text" name="search-skills" placeholder="Search skills">
+                                        <input class="form-control form-control-sm" @keyup="keyUpEventText" v-model="search"
+                                               type="text" name="search-skills" placeholder="Search skills">
                                     </div>
 
 {{--                                    Availabilty--}}
@@ -57,12 +58,11 @@
                                         <div class="filter-ttl">
                                             <h3>Pay Rate / Hr ($)</h3>
                                         </div>
-                                        <div class="rg-slider">
-                                            <input class="rn-slider slider-input" type="hidden" value="5,50" />
-                                        </div>
                                         <div class="rg-limit">
-                                            <h4>1</h4>
-                                            <h4>100+</h4>
+                                            <h4>@{{ rangeVal }}</h4>
+                                        </div>
+                                        <div  class="rg-slider">
+                                            <input type="range" min="0" max="100" v-model="rangeVal" @change="rangeFN">
                                         </div>
                                     </div>
 
@@ -216,11 +216,83 @@
         const app = new Vue({
             el: '#app',
             data: {
+                rangeVal:'0',
+                search:'',
                 country:'Pakistan',
                 myPost:{!! Auth::check() ? Auth::user()->post : '' !!},
                 allPost:{!! \App\Models\Post::with('user')->latest()->get() !!}
             },
             methods:{
+
+                rangeFN(){
+                    let val = this.rangeVal
+                    let newArr1 = []
+                    let newArr2 = []
+                    this.allPost = {!! \App\Models\Post::with('user')->latest()->get() !!}
+                    this.myPost = {!!  Auth::check() ? Auth::user()->post : '' !!}
+
+                    this.myPost.find( (e) => {
+                        if (e.rate === val){
+                            newArr1.push(e)
+                        }
+                    })
+                    if (newArr1.length > 0){
+                        this.myPost = newArr1
+                    }
+                    else{
+                        this.myPost = {!!  Auth::check() ? Auth::user()->post : '' !!}
+                    }
+
+                    this.allPost.find( (e) => {
+                        if (e.rate === val){
+                            newArr2.push(e)
+                        }
+                    })
+                    if (newArr2.length > 0){
+                        this.allPost = newArr2
+                    }
+                    else{
+                        this.allPost = {!! \App\Models\Post::with('user')->latest()->get() !!}
+                    }
+
+                },
+
+                keyUpEventText(){
+                    let val = this.search
+                    let newArr1 = []
+                    let newArr2 = []
+                    this.myPost = {!!  Auth::check() ? Auth::user()->post : '' !!}
+                    this.myPost.find( (e) => {
+                        if (e.cate === val){
+                            newArr1.push(e)
+                        }
+                        else if(e.post_type === val){
+                            newArr1.push(e)
+                        }
+                    })
+                    if (newArr1.length > 0){
+                        this.myPost = newArr1
+                    }
+                    else{
+                        this.myPost = {!!  Auth::check() ? Auth::user()->post : '' !!}
+                    }
+
+                    this.allPost = {!!  \App\Models\Post::with('user')->latest()->get() !!}
+                    this.allPost.find( (e) => {
+                        if (e.cate === val){
+                            newArr2.push(e)
+                        }
+                        else if(e.post_type === val){
+                            newArr2.push(e)
+                        }
+                    })
+                    if (newArr2.length > 0){
+                        this.allPost = newArr2
+                    }
+                    else{
+                        this.allPost = {!!  \App\Models\Post::with('user')->latest()->get() !!}
+                    }
+                },
 
                 countryChange(){
                     this.allPost = {!! \App\Models\Post::with('user')->latest()->get() !!}
@@ -231,7 +303,6 @@
                             newArr.push(e)
                         }
                     })
-                    console.log(newArr.length)
                     if (newArr.length > 0){
                         this.allPost = newArr
                     }
